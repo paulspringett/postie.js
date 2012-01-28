@@ -13,8 +13,12 @@ class Postie
     @bindEventListener
 
   onMessage: (event) ->
+    event = @parseEvent(event)
     console.log event
     @listenCallback(event)
+
+  parseEvent: (rawEvent) ->
+    new PostieEvent(rawEvent)
   
   bindEventListener: ->
     if typeof(window.addEventListener) is not 'undefined'
