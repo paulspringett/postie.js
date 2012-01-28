@@ -1,5 +1,6 @@
 class Postie
   listenCallback: null
+  domain: '*'
 
   constructor: (options = {}) ->
     
