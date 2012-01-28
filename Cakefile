@@ -15,3 +15,9 @@ build = (options = {}) ->
   exec "coffee #{compileFlag} --join #{output} #{source}", (err, stdout, stderr) ->
     throw err if err
     console.log stdout + stderr
+    minify()
+
+minify = () ->
+  exec "uglifyjs --verbose --output lib/postie.min.js lib/postie.js", (err, stdout, stderr) ->
+    throw err if err
+    console.log stdout + stderr
