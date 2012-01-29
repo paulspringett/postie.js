@@ -2,26 +2,23 @@
 <html>
 <head>
 	<title>Postie.js test</title>
-	
+
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>	
 	<script src="../lib/postie.js"></script>
 </head>
 <body>
-	<h1>Main window</h1>
+	<h1>Frame window</h1>
 	<ul class="messages">
 
 	</ul>
-	<iframe name="foo" src="frame.html" width="300" height="200" />
-
 	<script type="text/javascript">
 	  $(document).ready(function() {
-	    var window.postie = new Postie();
+	    var postie = new Postie();
 	    postie.listen(function(event) {
 	  	  var $li = $('<li></li>').html(event.data)
 	  	  $('ul.messages').append($li)
 	    });
 	  });
 	</script>
-
 </body>
 </html>
