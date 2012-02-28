@@ -4,7 +4,7 @@
 	<title>Postie.js test</title>
 
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>	
-	<script src="../lib/postie.js"></script>
+	<script src="lib/postie.js"></script>
 </head>
 <body>
 	<h1>Frame window</h1>
@@ -15,7 +15,8 @@
 	  $(document).ready(function() {
 	    var postie = new Postie();
 	    postie.listen(function(event) {
-	  	  var $li = $('<li></li>').html(event.data)
+	      console.log( JSON.stringify(event.data) );
+	  	  var $li = $('<li></li>').text(JSON.stringify(event.data))
 	  	  $('ul.messages').append($li)
 	    });
 	  });
