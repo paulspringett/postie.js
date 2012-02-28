@@ -12,12 +12,22 @@ build = (options = {}) ->
   compileFlag = options.compileFlag or '--compile'
   compileFlag = '--watch' if options.watch
 
+  exec "rm #{output}"
+
+  console.log "Compiling #{source} into #{output}"
   exec "coffee #{compileFlag} --join #{output} #{source}", (err, stdout, stderr) ->
-    throw err if err
-    console.log stdout + stderr
+    if err
+      throw err
+      console.log stderr
+
+    console.log stdout if stdout
     minify()
 
 minify = () ->
-  exec "uglifyjs --verbose --output lib/postie.min.js lib/postie.js", (err, stdout, stderr) ->
-    throw err if err
-    console.log stdout + stderr
+  exec "uglifyjs --output lib/postie.min.js lib/postie.js", (err, stdout, stderr) ->
+    if err
+      throw err
+      console.log stderr
+
+    console.log stdout if stdout
+    console.log "Minified lib/postie.js to lib/postie.min.js"
