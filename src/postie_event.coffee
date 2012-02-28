@@ -1,9 +1,26 @@
 # PostieEvent
 # Takes a raw postMessage event object, parses the data back into JSON
 class PostieEvent
+  success: false
 
-  constructor: (event = {}) ->
+  constructor: (event) ->
+  	unless event
+  	  throw "Cannot construct a PostieEvent with a postMessage event object"
+    
     @origin = event.origin
-    @data = JSON.parse(event.data)
+    
+    message = JSON.parse(event.data)
+    @uuid = message.uuid
+    @data = message.payload
+    
     @sourceWindow = event.source
-    { data: @data, origin: origin, source: @sourceWindow }
+    
+    @respond()
+
+    @
+
+  respond: ->
+    new PostieSender(@sourceWindow, @response(), @sourceWindow)
+
+  response: ->
+    { success: true }
