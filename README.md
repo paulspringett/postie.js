@@ -10,7 +10,7 @@ JavaScript wrapper for the HTML5 postMessage API, written in CoffeeScript
 
     var postie = new Postie();
 
-    postie.listen(function(event), {
+    postie.listen(function(event) {
       
     });
 
