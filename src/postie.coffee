@@ -7,30 +7,29 @@ class Postie
   domain: '*'
 
   constructor: (options = {}) ->
-    @
+    domain = options.domain if options.domain
   
   send: (frames, data, callback) ->
-    console.log frames
     new PostieSender(frames, data, callback)
 
   # Public: assign listener callback function
   listen: (callback) ->
     @listenCallback = callback
-    @bindEventListener
+    @bindEventListener()
 
-  onMessage: (event) ->
-    event = @parseEvent(event)
-    console.log event
+  onMessage: (rawEvent) =>
+    event = @parseEvent(rawEvent)
     @listenCallback(event)
 
   parseEvent: (rawEvent) ->
     new PostieEvent(rawEvent)
   
   bindEventListener: ->
-    if typeof(window.addEventListener) is not 'undefined'
+    if typeof(window.addEventListener) != 'undefined'
       window.addEventListener 'message', @onMessage, false
-    else if typeof(window.attachEvent) is not 'undefined'
+    else if typeof(window.attachEvent) != 'undefined'
       window.attachEvent 'onmessage', @onMessage
 
 # Expose Postie to the DOM
+window or= {}
 window.Postie = Postie
