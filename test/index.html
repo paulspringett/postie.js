@@ -8,9 +8,7 @@
 	<script src="/lib/postie.js"></script>
 	<script type="text/javascript">
 	  $(function() {
-	    window.client = new Postie.Client({ server: frames[0], methods: ['getUser'] });
-
-      console.log('client', client);
+	    window.client = new Postie.Client($('iframe')[0]);
 
       client.ready(function() {
         console.log('_endpoints', client._endpoints);
