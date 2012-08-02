@@ -21,7 +21,7 @@ build = (options = {}) ->
       console.log stderr
 
     console.log stdout if stdout
-    minify()
+    # minify()
 
 minify = () ->
   exec "uglifyjs --output lib/postie.min.js lib/postie.js", (err, stdout, stderr) ->
