@@ -10,7 +10,7 @@ Postie.js make it really easy to send and return data between the client (in one
 Add the `postie.js` file to the HTML for both files.
 
 ```html
-<script src="postie.js" />
+<script src="postie.js"></script>
 ```
 
 ### Usage
