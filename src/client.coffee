@@ -1,3 +1,6 @@
+window.Postie = {}
+
+
 # Postie.Client
 # The Client references and connects to the Server in another Frame.
 # The Available methods are fetched from the Server and instantiated
