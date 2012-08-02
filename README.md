@@ -6,7 +6,7 @@ Under the hood it uses the HTML5 postMessage API.
 
 ### Why was it created?
 
-We needed to create a bookmarklet that could communicate to a server from any domain. Cross-domain policy issues made this really difficult.
+We needed to create a bookmarklet that could communicate with our server from a script on any domain. Cross-domain policy issues made this really difficult.
 To get round this we embedded an iframe with a page on the correct domain and used Postie.js to talk between the web page and the iframe.
 
 We've worked really hard to abstract away the native postMessage API and provide some really powerful features.
@@ -16,11 +16,11 @@ We've worked really hard to abstract away the native postMessage API and provide
 
 ### How does it work?
 
-Postie.js comes in two parts, the Client and the Server.
+Postie.js comes in two parts, the Client and the Server. Oh, and a "Receiver" object. Wait, that's three parts!
 
-1. The Client allows sending of data to the server (in another window) and handles the response, passing it to your provided callback function.
+1. The Client enables sending of data to the Server (in another window) and handles the response sent back, passing it to your provided callback function.
 2. The Server listens for requests from the Client, passes the request to a object "Receiver" and sends back the result.
-3. The Receiver object is simply a JSON object of key-value pairs where the key is the endpoint for the client to call and the value is a function that takes any data send by the client and provides a response.
+3. The Receiver object is simply a JSON object of key-value pairs where the key is the name of the endpoint for the client to call and the value is a function that takes any data send by the client and provides whatever response you need.
 
 ### Installation
 
@@ -32,6 +32,8 @@ Add the `postie.js` file to the HTML for both files.
 
 ### Usage
 
+Enough talk, time for an example:
+
 ##### Step 1) Create a list of endpoints for the server
 
 This should be defined in your background page / iframe
@@ -40,6 +42,7 @@ This should be defined in your background page / iframe
 var myReceiver = {
   
   // First endpoint gets a User by an ID and returns a JSON representation of it.
+  // We're doing this with some Backbone here.
   getUser: function(id) {
     var user = new User(id);
     user.fetch(success: function() {
@@ -47,7 +50,7 @@ var myReceiver = {
     });
   },
   
-  // Second endpoint simply returns the string of 'foo' 
+  // Second endpoint simply returns the string of 'foo'.
   getFoo: function() {
     return 'foo';
   }
@@ -65,7 +68,8 @@ server.listen()
 
 ##### Step 3) Create the client
 
-This should be defined in your main window
+This should be defined in your main window. Pass the Window / iframe DOM object where the Server instance is listening.
+Run all your calls to the Server inside the `ready` callback to ensure the Server is ready.
 
 ```javascript
 var client = new Postie.Client( $('iframe')[0] );
