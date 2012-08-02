@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="en"><head><title>client</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="client"><meta name="groc-project-path" content="src/client.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/client.coffee</div></div><div id="document"><div class="segment"><div class="comments"><div class="wrapper"><p>Postie.Client
+The Client references and connects to the Server in another Frame.
+The Available methods are fetched from the Server and instantiated
+as methods on the Client
+Example:
+<code>
+client = new Postie.Client('#serveriframe')
+client.ready -&gt;
+  client.getUser 123, (attrs) -&gt;
+    @user = new User(attrs)
+</code></p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">Postie</span><span class="p">.</span><span class="nx">Client</span>
+  <span class="nv">_callbacks: </span><span class="p">[]</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Create a new client, and start listening to responses</p>
+
+<p>serverFrame - reference to the Window or iFrame the server is listening in</p>
+
+<p>Returns a Postie.Client</p></div></div><div class="code"><div class="wrapper">  <span class="nv">constructor: </span><span class="nf">(serverFrame) -&gt;</span>
+    <span class="nx">@_listen</span><span class="p">()</span>
+    <span class="vi">@_frame = </span><span class="nx">@_parseFrame</span><span class="p">(</span><span class="nx">serverFrame</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Wait until the server Frame is ready and then
+request the available method endpoints from the
+server's Receiver object</p>
+
+<p><code>callback</code> - function to run when ready</p>
+
+<p>Returns nothing</p></div></div><div class="code"><div class="wrapper">  <span class="nv">ready: </span><span class="nf">(callback) -&gt;</span>
+    <span class="nx">$</span><span class="p">(</span><span class="nx">@_frame</span><span class="p">.</span><span class="nb">document</span><span class="p">).</span><span class="nx">ready</span> <span class="o">=&gt;</span>
+      <span class="nv">uuid = </span><span class="nx">@_dispatch</span><span class="p">(</span><span class="s">&#39;_getEndpoints&#39;</span><span class="p">,</span> <span class="kc">true</span><span class="p">)</span>
+
+      <span class="nx">@_registerCallback</span> <span class="nx">uuid</span><span class="p">,</span> <span class="p">(</span><span class="nx">methods</span><span class="p">)</span> <span class="o">=&gt;</span>
+        <span class="nx">@_createEndpoints</span><span class="p">(</span><span class="nx">methods</span><span class="p">)</span>
+        <span class="nx">callback</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Add the callback for the given UUID for the callbacks Array</p>
+
+<p>uuid - String of the UUID
+fn - Function, the callback to run</p>
+
+<p>Returns an Array of the UUID and function added</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_registerCallback: </span><span class="nf">(uuid, fn) -&gt;</span>
+    <span class="nx">@_callbacks</span><span class="p">.</span><span class="nx">push</span>
+      <span class="nv">uuid: </span><span class="nx">uuid</span>
+      <span class="nv">fn: </span><span class="nx">fn</span>
+
+    <span class="p">[</span><span class="nx">uuid</span><span class="p">,</span> <span class="nx">fn</span><span class="p">]</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Takes an argument and attempts to return a Window that can have
+postMessage called on it successfully</p>
+
+<p>frame - String, Object or Function</p>
+
+<p>Raises Error if a Window cannot be parsed
+Returns a Window</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_parseFrame: </span><span class="nf">(frame) -&gt;</span>
+    <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">frame</span><span class="p">)</span> <span class="o">is</span> <span class="s">&#39;string&#39;</span>
+      <span class="nv">frame = </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementById</span><span class="p">(</span><span class="nx">frame</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">frame</span><span class="p">.</span><span class="nx">contentWindow</span><span class="p">)</span> <span class="o">is</span> <span class="s">&#39;object&#39;</span>
+      <span class="nv">frame = </span><span class="nx">frame</span><span class="p">.</span><span class="nx">contentWindow</span>
+
+    <span class="k">try</span>
+      <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">frame</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">)</span> <span class="o">is</span> <span class="s">&#39;function&#39;</span>
+        <span class="k">return</span> <span class="nx">frame</span>
+    <span class="k">catch</span> <span class="nx">err</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&quot;Could not establish postMessage API for frame: </span><span class="si">#{</span><span class="nx">frame</span><span class="si">}</span><span class="s">, must be an iframe&quot;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Create methods on this client from the list of endpoints from the server</p>
+
+<p>Returns this</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_createEndpoints: </span><span class="nf">(endpoints) -&gt;</span>
+    <span class="k">for</span> <span class="nx">endpoint</span> <span class="k">in</span> <span class="nx">endpoints</span>
+      <span class="nx">@</span><span class="p">[</span><span class="nx">endpoint</span><span class="p">]</span> <span class="o">=</span> <span class="nf">(args...) -&gt;</span>
+        <span class="p">[</span><span class="nx">data</span><span class="p">,</span> <span class="nx">callback</span><span class="p">]</span> <span class="o">=</span> <span class="nx">@_parseArgs</span><span class="p">(</span><span class="nx">args</span><span class="p">)</span>
+        <span class="nv">uuid = </span><span class="nx">@_dispatch</span><span class="p">(</span><span class="nx">endpoint</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
+        <span class="nx">@_registerCallback</span><span class="p">(</span><span class="nx">uuid</span><span class="p">,</span> <span class="nx">callback</span><span class="p">)</span> <span class="k">if</span> <span class="nx">callback</span><span class="o">?</span>
+
+    <span class="nx">@</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Take an artibuarty number of arguments and determine which is the data and
+which is a callback function</p>
+
+<p>Returns an Array</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_parseArgs: </span><span class="nf">(args) -&gt;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>If more than 2 args throw an error</p></div></div><div class="code"><div class="wrapper">    <span class="k">if</span> <span class="nx">args</span><span class="p">.</span><span class="nx">length</span> <span class="o">&gt;</span> <span class="mi">2</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&#39;ArgumentError: more than 2 args passed to an endpoint. Pass a data argument and a callback argument only&#39;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>If 2 args, they should be in order already</p></div></div><div class="code"><div class="wrapper">    <span class="k">if</span> <span class="nx">args</span><span class="p">.</span><span class="nx">length</span> <span class="o">is</span> <span class="mi">2</span>
+      <span class="k">return</span> <span class="nx">args</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>If only 1 arg, determine if it's a callback function or data</p></div></div><div class="code"><div class="wrapper">    <span class="k">if</span> <span class="nx">args</span><span class="p">.</span><span class="nx">length</span> <span class="o">is</span> <span class="mi">1</span>
+      <span class="nv">arg = </span><span class="nx">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+      <span class="k">if</span> <span class="k">typeof</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span> <span class="o">is</span> <span class="s">&#39;function&#39;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="kc">null</span><span class="p">,</span> <span class="nx">arg</span><span class="p">]</span>
+
+      <span class="k">else</span>
+        <span class="k">return</span> <span class="p">[</span><span class="nx">arg</span><span class="p">,</span> <span class="kc">null</span><span class="p">]</span>
+
+    <span class="p">[</span><span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">]</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Dispatch the encapsulated message to the Frame
+using postMessage</p>
+
+<p>Returns a String of the Message's UUID</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_dispatch: </span><span class="nf">(method, data) -&gt;</span>
+    <span class="nv">uuid = </span><span class="nx">@_generateUuid</span><span class="p">()</span>
+
+    <span class="nv">payload = </span><span class="nx">@_payload</span><span class="p">(</span><span class="nx">uuid</span><span class="p">,</span> <span class="nx">method</span><span class="p">,</span> <span class="nx">data</span><span class="p">)</span>
+    <span class="nx">@_frame</span><span class="p">.</span><span class="nx">postMessage</span> <span class="nx">payload</span><span class="p">,</span> <span class="s">&#39;*&#39;</span>
+    <span class="nx">uuid</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Creates a payload String. postMessage only supports sending of string data.
+Takes a UUID, endpoint method and data (any type) and creates a JSON object
+which is then stringified</p>
+
+<p>uuid - String of the UUID
+method - String of the endpoint method to run
+data - Any (String, Int, JSON) of the data to send</p>
+
+<p>Returns a String</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_payload: </span><span class="nf">(uuid, method, data) -&gt;</span>
+    <span class="nv">message = </span><span class="p">{</span> <span class="nv">uuid: </span><span class="nx">uuid</span><span class="p">,</span> <span class="nv">method: </span><span class="nx">method</span><span class="p">,</span> <span class="nv">payload: </span><span class="nx">data</span> <span class="p">}</span>
+    <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Creates a randon UUID for each message</p>
+
+<p>Returns a String</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_generateUuid: </span><span class="o">-&gt;</span>
+    <span class="nv">s4 = </span><span class="o">-&gt;</span>
+      <span class="p">(((</span><span class="mi">1</span><span class="o">+</span><span class="nb">Math</span><span class="p">.</span><span class="nx">random</span><span class="p">())</span><span class="o">*</span><span class="mh">0x10000</span><span class="p">)</span><span class="o">|</span><span class="mi">0</span><span class="p">).</span><span class="nx">toString</span><span class="p">(</span><span class="mi">16</span><span class="p">).</span><span class="nx">substring</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="s">&quot;</span><span class="si">#{</span><span class="nx">s4</span><span class="p">()</span><span class="si">}#{</span><span class="nx">s4</span><span class="p">()</span><span class="si">}</span><span class="s">-</span><span class="si">#{</span><span class="nx">s4</span><span class="p">()</span><span class="si">}</span><span class="s">-</span><span class="si">#{</span><span class="nx">s4</span><span class="p">()</span><span class="si">}</span><span class="s">-</span><span class="si">#{</span><span class="nx">s4</span><span class="p">()</span><span class="si">}</span><span class="s">-</span><span class="si">#{</span><span class="nx">s4</span><span class="p">()</span><span class="si">}#{</span><span class="nx">s4</span><span class="p">()</span><span class="si">}#{</span><span class="nx">s4</span><span class="p">()</span><span class="si">}</span><span class="s">&quot;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Bind to the window.message event to listen for incoming postMessage
+events</p>
+
+<p>Binds event to @_receive
+Returns nothing</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_listen: </span><span class="o">-&gt;</span>
+    <span class="k">if</span> <span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="o">?</span>
+      <span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span> <span class="s">&#39;message&#39;</span><span class="p">,</span> <span class="nx">@_receive</span><span class="p">,</span> <span class="kc">false</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="nb">window</span><span class="p">.</span><span class="nx">attachEvent</span><span class="o">?</span>
+      <span class="nb">window</span><span class="p">.</span><span class="nx">attachEvent</span> <span class="s">&#39;onmessage&#39;</span><span class="p">,</span> <span class="nx">@_receive</span>
+    <span class="k">else</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&#39;cannot bind to postMessage &quot;message&quot; event on window&#39;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Receives the postMessage event, looks up a stored callback
+function and calls it with the returned data</p>
+
+<p>rawEvent - postMessage Event</p>
+
+<p>Returns the remaining callbacks</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_receive: </span><span class="p">(</span><span class="nx">rawEvent</span><span class="p">)</span> <span class="o">=&gt;</span>
+    <span class="nv">event = </span><span class="k">new</span> <span class="nx">Postie</span><span class="p">.</span><span class="nx">Event</span><span class="p">(</span><span class="nx">rawEvent</span><span class="p">)</span>
+
+    <span class="nv">callback = </span><span class="nx">_</span><span class="p">.</span><span class="nx">find</span> <span class="nx">@_callbacks</span><span class="p">,</span> <span class="nf">(cb) -&gt;</span>
+      <span class="nx">cb</span><span class="p">.</span><span class="nx">uuid</span> <span class="o">is</span> <span class="nx">event</span><span class="p">.</span><span class="nx">uuid</span>
+    <span class="k">return</span> <span class="nx">unless</span> <span class="nx">callback</span><span class="o">?</span>
+
+    <span class="nx">callback</span><span class="p">.</span><span class="nx">fn</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
+    <span class="vi">@_callbacks = </span><span class="nx">_</span><span class="p">.</span><span class="nx">without</span> <span class="nx">@_callbacks</span><span class="p">,</span> <span class="nx">callback</span></div></div></div></div></body></html>

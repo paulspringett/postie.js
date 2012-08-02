@@ -1,0 +1,18 @@
+<!DOCTYPE html><html lang="en"><head><title>event</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="event"><meta name="groc-project-path" content="src/event.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/event.coffee</div></div><div id="document"><div class="segment"><div class="comments"><div class="wrapper"><p>PostieEvent
+Takes a raw postMessage event object, parses the data back into JSON
+and provide useful accessor methods
+Example:
+<code>
+event = new Postie.Event(rawPostMessageEvent)
+event.data
+=&gt; { foo: "bar" }
+</code></p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">Postie</span><span class="p">.</span><span class="nx">Event</span>
+  <span class="nv">success: </span><span class="kc">false</span>
+
+  <span class="nv">constructor: </span><span class="nf">(event) -&gt;</span>
+    <span class="nv">message = </span><span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
+
+    <span class="vi">@uuid = </span><span class="nx">message</span><span class="p">.</span><span class="nx">uuid</span>
+    <span class="vi">@method = </span><span class="nx">message</span><span class="p">.</span><span class="nx">method</span>
+    <span class="vi">@data = </span><span class="nx">message</span><span class="p">.</span><span class="nx">payload</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>This is the origin of the postMessage
+Send responses to @source</p></div></div><div class="code"><div class="wrapper">    <span class="vi">@source = </span><span class="nx">event</span><span class="p">.</span><span class="nx">source</span></div></div></div></div></body></html>

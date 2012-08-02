@@ -1,0 +1,71 @@
+<!DOCTYPE html><html lang="en"><head><title>index</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="index"><meta name="groc-project-path" content="README.md"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">README.md</div></div><div id="document"><div class="segment"><div class="comments"><div class="wrapper"><h2 id="postiejs">Postie.js</h2>
+
+<p>Send and receive data between frames using the HTML5 postMessage API.</p>
+
+<p>Postie.js make it really easy to send and return data between the client (in one window) and the server (in an embedded frame).</p>
+
+<h3 id="installation">Installation</h3>
+
+<p>Add the <code>postie.js</code> file to the HTML for both files.</p>
+
+<p><code>html
+&lt;script src="postie.js" /&gt;
+</code></p>
+
+<h3 id="usage">Usage</h3>
+
+<h5 id="step-1-create-a-list-of-endpoints-for-the-server">Step 1) Create a list of endpoints for the server</h5>
+
+<p><code>javascript
+// iframe
+var myReceiver = {
+  getUser: function(id) {
+    var user = new User(id);
+    user.fetch(success: function() {
+      return user;
+    });
+  },
+  getFoo: function() {
+    return 'foo';
+  }
+};
+</code></p>
+
+<h5 id="step-2-create-the-server-and-start-listening">Step 2) Create the server and start listening</h5>
+
+<p><code>javascript
+// iframe
+var server = new Postie.Server(receiver: myReceiver)
+server.listen()
+</code></p>
+
+<h5 id="step-3-create-the-client">Step 3) Create the client</h5>
+
+<p><code>javascript
+// main window
+var client = new Postie.Client( $('iframe')[0] );
+client.ready(function() {
+  // start calling endpoints here
+});
+</code></p>
+
+<h5 id="step-4-call-an-endpoint-and-receive-the-response">Step 4) Call an endpoint and receive the response</h5>
+
+<p>```javascript
+// main window
+client.ready(function() {
+  console.log( client._endpoints );
+  // => ['getUser', 'getFoo']</p>
+
+<p>client.getUser(123, function(user) {
+    console.log('Got user:', user);
+  });
+  // => Got user: User</p>
+
+<p>client.getFoo(function(data) {
+    console.log('Got foo:', data);
+  });
+  // => Got foo: 'foo'</p>
+
+<p>});
+```</p></div></div></div></div></body></html>

@@ -1,38 +1,72 @@
 ## Postie.js
 
-JavaScript wrapper for the HTML5 postMessage API, written in CoffeeScript
+Send and receive data between frames using the HTML5 postMessage API.
+
+Postie.js make it really easy to send and return data between the client (in one window) and the server (in an embedded frame).
+
 
 ### Installation
 
-    <script src="js/postie.js" />
+Add the `postie.js` file to the HTML for both files.
+
+```html
+<script src="postie.js" />
+```
 
 ### Usage
 
-    var postie = new Postie();
+##### Step 1) Create a list of endpoints for the server
 
-    postie.listen(function(event) {
-      
+```javascript
+// iframe
+var myReceiver = {
+  getUser: function(id) {
+    var user = new User(id);
+    user.fetch(success: function() {
+      return user;
     });
+  },
+  getFoo: function() {
+    return 'foo';
+  }
+};
+```
 
-    postie.send(frames[1], { foo: 'bar' }, function(response, request) {
-      response.status # success or error
-    });
+##### Step 2) Create the server and start listening
 
+```javascript
+// iframe
+var server = new Postie.Server(receiver: myReceiver)
+server.listen()
+```
 
-### Development
+##### Step 3) Create the client
 
-You'll need Node.js, NPM & CoffeeScript
+```javascript
+// main window
+var client = new Postie.Client( $('iframe')[0] );
+client.ready(function() {
+  // start calling endpoints here
+});
+```
 
-Install Node.js
+##### Step 4) Call an endpoint and receive the response
 
-    brew install node
+```javascript
+// main window
+client.ready(function() {
+  console.log( client._endpoints );
+  // => ['getUser', 'getFoo']
 
-Install NPM
+  client.getUser(123, function(user) {
+    console.log('Got user:', user);
+  });
+  // => Got user: User
 
-    curl http://npmjs.org/install.sh | sh
+  client.getFoo(function(data) {
+    console.log('Got foo:', data);
+  });
+  // => Got foo: 'foo'
 
-Install CoffeeScript
-
-    npm install -g coffee-script
-
- 
+});
+```

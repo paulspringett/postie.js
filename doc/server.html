@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="en"><head><title>server</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content=""><meta name="groc-document-path" content="server"><meta name="groc-project-path" content="src/server.coffee"><link rel="stylesheet" type="text/css" media="all" href="assets/style.css"><script type="text/javascript" src="assets/behavior.js"></script><body><div id="meta"><div class="file-path">src/server.coffee</div></div><div id="document"><div class="segment"><div class="comments"><div class="wrapper"><p>Postie.Server
+The server listens for requests
+When receiving a request from a Client it
+calls the requested endpoint method on it's Receiver
+and returns the response via another postMessage
+Example:
+```
+myReceiver =
+ getUser: (id) ->
+   Users.find(id)</p>
+
+<p>server = new Postie.Server(receiver: myReceiver)
+server.listen()
+```</p>
+
+<p>The Receiver
+This is a JSON object that contains a list of endpoint method
+names and corresponding functions. When the Client requests an
+endpoint the Server look for a key in the Receiver with the same
+name</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">Postie</span><span class="p">.</span><span class="nx">Server</span>
+  <span class="nv">endpoints: </span><span class="p">[]</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Create a new Server</p>
+
+<p>options.receiver - a JSON object with endpoints and functions</p>
+
+<p>Returns a Postie.Server</p></div></div><div class="code"><div class="wrapper">  <span class="nv">constructor: </span><span class="nf">(options = {}) -&gt;</span>
+    <span class="vi">@receiver = </span><span class="nx">options</span><span class="p">.</span><span class="nx">receiver</span>
+    <span class="nx">@_listEndpoints</span><span class="p">()</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Receive a postMessage event
+Either return the available endpoints or pass
+the method call to the Receiver. Then dispatch
+the response</p>
+
+<p>rawEvent - postMessage Event object</p>
+
+<p>Returns nothing</p></div></div><div class="code"><div class="wrapper">  <span class="nv">receive: </span><span class="p">(</span><span class="nx">rawEvent</span><span class="p">)</span> <span class="o">=&gt;</span>
+    <span class="nv">event = </span><span class="k">new</span> <span class="nx">Postie</span><span class="p">.</span><span class="nx">Event</span><span class="p">(</span><span class="nx">rawEvent</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nx">event</span><span class="p">.</span><span class="nx">method</span> <span class="o">is</span> <span class="s">&#39;_getEndpoints&#39;</span>
+      <span class="k">return</span> <span class="nx">@dispatch</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">@endpoints</span><span class="p">)</span>
+
+    <span class="nv">responseData = </span><span class="nx">@receiver</span><span class="p">[</span><span class="nx">event</span><span class="p">.</span><span class="nx">method</span><span class="p">](</span><span class="nx">event</span><span class="p">.</span><span class="nx">data</span><span class="p">)</span>
+    <span class="nx">@dispatch</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">responseData</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Dispatch the encapsulated message to the source
+using postMessage</p>
+
+<p>Returns a String of the Message's UUID</p></div></div><div class="code"><div class="wrapper">  <span class="nv">dispatch: </span><span class="nf">(event, responseData) -&gt;</span>
+    <span class="nv">frame = </span><span class="nx">event</span><span class="p">.</span><span class="nx">source</span>
+
+    <span class="nv">payload = </span><span class="nx">@payload</span><span class="p">(</span><span class="nx">event</span><span class="p">.</span><span class="nx">uuid</span><span class="p">,</span> <span class="nx">responseData</span><span class="p">)</span>
+    <span class="nx">frame</span><span class="p">.</span><span class="nx">postMessage</span> <span class="nx">payload</span><span class="p">,</span> <span class="s">&#39;*&#39;</span>
+    <span class="nx">event</span><span class="p">.</span><span class="nx">uuid</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Creates a payload String. postMessage only supports sending of string data.
+Takes a UUID and data (any type) and creates a JSON object which is then stringified</p>
+
+<p>uuid - String of the UUID
+data - Any (String, Int, JSON) of the data to send</p>
+
+<p>Returns a String</p></div></div><div class="code"><div class="wrapper">  <span class="nv">payload: </span><span class="nf">(uuid, data) -&gt;</span>
+    <span class="nv">message = </span><span class="p">{</span> <span class="nv">uuid: </span><span class="nx">uuid</span><span class="p">,</span> <span class="nv">payload: </span><span class="nx">data</span> <span class="p">}</span>
+    <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">message</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Bind to the window.message event to listen for incoming postMessage
+events</p>
+
+<p>Binds event to @receive
+Returns nothing</p></div></div><div class="code"><div class="wrapper">  <span class="nv">listen: </span><span class="o">-&gt;</span>
+    <span class="k">if</span> <span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="o">?</span>
+      <span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span> <span class="s">&#39;message&#39;</span><span class="p">,</span> <span class="nx">@receive</span><span class="p">,</span> <span class="kc">false</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="nb">window</span><span class="p">.</span><span class="nx">attachEvent</span><span class="o">?</span>
+      <span class="nb">window</span><span class="p">.</span><span class="nx">attachEvent</span> <span class="s">&#39;onmessage&#39;</span><span class="p">,</span> <span class="nx">@receive</span>
+    <span class="k">else</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span> <span class="s">&#39;cannot bind to postMessage &quot;message&quot; event on window&#39;</span></div></div></div><div class="segment"><div class="comments"><div class="wrapper"><p>Get the list of methods from the receiver and add them
+to an Array of @endpoints</p>
+
+<p>receiver - the Receiver</p>
+
+<p>Returns an Array</p></div></div><div class="code"><div class="wrapper">  <span class="nv">_listEndpoints: </span><span class="nf">(receiver) -&gt;</span>
+    <span class="k">for</span> <span class="nx">method</span><span class="p">,</span> <span class="nx">fn</span> <span class="k">of</span> <span class="nx">receiver</span>
+      <span class="nx">@endpoints</span><span class="p">.</span><span class="nx">push</span> <span class="nx">method</span>
+
+    <span class="nx">@endpoints</span></div></div></div></div></body></html>
