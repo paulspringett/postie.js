@@ -1,35 +1,40 @@
-window.Postie = {}
-
+# Postie.Client
+# The Client references and connects to the Server in another Frame.
+# The Available methods are fetched from the Server and instantiated
+# as methods on the Client
+# Example:
+# ```
+# client = new Postie.Client('#serveriframe')
+# client.ready ->
+#   client.getUser 123, (attrs) ->
+#     @user = new User(attrs)
+# ```
 class Postie.Client
   _callbacks: []
 
-  constructor: (options = {}) ->
+  # Create a new client, and start listening to responses
+  #
+  # serverFrame - reference to the Window or iFrame the server is listening in
+  #
+  # Returns a Postie.Client
+  constructor: (serverFrame) ->
     @_listen()
-    @_frame = @_parseFrame(options.server)
-    @_endpoints = options.methods
+    @_frame = @_parseFrame(serverFrame)
 
+  # Wait until the server Frame is ready and then
+  # request the available method endpoints from the
+  # server's Receiver object
+  #
+  # `callback` - function to run when ready
+  #
+  # Returns nothing
   ready: (callback) ->
-    console.log "Ready!", callback
     $(@_frame.document).ready =>
       uuid = @_dispatch('_getEndpoints', true)
 
       @_registerCallback uuid, (methods) =>
-        console.log "callback", methods
         @_createEndpoints(methods)
         callback()
-
-  # Create methods on this client from the list of endpoints from the server
-  #
-  # Returns a Boolean
-  _createEndpoints: (endpoints) ->
-    console.log "creating endpoints", endpoints
-    for endpoint in endpoints
-      @[endpoint] = (args...) ->
-        [data, callback] = @_parseArgs(args)
-        uuid = @_dispatch(endpoint, data)
-        @_registerCallback(uuid, callback) if callback?
-
-    true
 
   # Add the callback for the given UUID for the callbacks Array
   #
@@ -41,8 +46,6 @@ class Postie.Client
     @_callbacks.push
       uuid: uuid
       fn: fn
-
-    console.log "registered callback", @_callbacks
 
     [uuid, fn]
 
@@ -66,21 +69,18 @@ class Postie.Client
     catch err
       throw new Error "Could not establish postMessage API for frame: #{frame}, must be an iframe"
 
-  # Creates a payload String. postMessage only supports sending of string data.
-  # Takes a UUID, endpoint method and data (any type) and creates a JSON object
-  # which is then stringified
+
+  # Create methods on this client from the list of endpoints from the server
   #
-  # uuid - String of the UUID
-  # method - String of the endpoint method to run
-  # data - Any (String, Int, JSON) of the data to send
-  #
-  # Returns a String
-  _payload: (uuid, method, data) ->
-    try
-      message = { uuid: uuid, method: method, payload: data }
-      JSON.stringify(message)
-    catch err
-      console.log "Could not stringify data: #{@data} with #{err}"
+  # Returns this
+  _createEndpoints: (endpoints) ->
+    for endpoint in endpoints
+      @[endpoint] = (args...) ->
+        [data, callback] = @_parseArgs(args)
+        uuid = @_dispatch(endpoint, data)
+        @_registerCallback(uuid, callback) if callback?
+
+    @
 
   # Take an artibuarty number of arguments and determine which is the data and
   # which is a callback function
@@ -115,9 +115,21 @@ class Postie.Client
     uuid = @_generateUuid()
 
     payload = @_payload(uuid, method, data)
-    console.log "_dispatch payload", payload
     @_frame.postMessage payload, '*'
     uuid
+
+  # Creates a payload String. postMessage only supports sending of string data.
+  # Takes a UUID, endpoint method and data (any type) and creates a JSON object
+  # which is then stringified
+  #
+  # uuid - String of the UUID
+  # method - String of the endpoint method to run
+  # data - Any (String, Int, JSON) of the data to send
+  #
+  # Returns a String
+  _payload: (uuid, method, data) ->
+    message = { uuid: uuid, method: method, payload: data }
+    JSON.stringify(message)
 
   # Creates a randon UUID for each message
   #
@@ -128,6 +140,11 @@ class Postie.Client
 
     "#{s4()}#{s4()}-#{s4()}-#{s4()}-#{s4()}-#{s4()}#{s4()}#{s4()}"
 
+  # Bind to the window.message event to listen for incoming postMessage
+  # events
+  #
+  # Binds event to @_receive
+  # Returns nothing
   _listen: ->
     if window.addEventListener?
       window.addEventListener 'message', @_receive, false
@@ -136,16 +153,18 @@ class Postie.Client
     else
       throw new Error 'cannot bind to postMessage "message" event on window'
 
+  # Receives the postMessage event, looks up a stored callback
+  # function and calls it with the returned data
+  #
+  # rawEvent - postMessage Event
+  #
+  # Returns the remaining callbacks
   _receive: (rawEvent) =>
     event = new Postie.Event(rawEvent)
 
     callback = _.find @_callbacks, (cb) ->
       cb.uuid is event.uuid
-
     return unless callback?
 
     callback.fn(event.data)
-
     @_callbacks = _.without @_callbacks, callback
-
-
