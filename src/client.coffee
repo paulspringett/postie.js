@@ -20,9 +20,9 @@ class Postie.Client
   # serverFrame - reference to the Window or iFrame the server is listening in
   #
   # Returns a Postie.Client
-  constructor: (serverFrame) ->
+  constructor: (serverUrl) ->
     @_listen()
-    @_frame = @_parseFrame(serverFrame)
+    @serverUrl = serverUrl
 
   # Wait until the server Frame is ready and then
   # request the available method endpoints from the
@@ -32,13 +32,12 @@ class Postie.Client
   #
   # Returns nothing
   ready: (callback) ->
-    setTimeout => # iframe onload
+    @_createFrame @serverUrl, =>
       uuid = @_dispatch('getEndpoints', true)
 
       @_registerCallback uuid, (methods) =>
         @_createEndpoints(methods)
         callback()
-    , 100
 
   # Add the callback for the given UUID for the callbacks Array
   #
@@ -60,24 +59,24 @@ class Postie.Client
   #
   # Raises Error if a Window cannot be parsed
   # Returns a Window
-  _parseFrame: (frame) ->
-    if typeof(frame) is 'string'
-      frame = document.getElementById(frame)
+  _createFrame: (serverUrl, callback) ->
+    frame = document.createElement('iframe')
+    frame.setAttribute 'src', serverUrl
+    frame.setAttribute 'id', 'postie-server-iframe'
+    frame.setAttribute 'style', 'display:none;'
 
-    if typeof(frame.contentWindow) is 'object'
-      frame = frame.contentWindow
+    frame.onload = callback
+    document.body.appendChild frame
 
-    try
-      if typeof(frame.postMessage) is 'function'
-        return frame
-    catch err
-      throw new Error "Could not establish postMessage API for frame: #{frame}, must be an iframe"
+    @_frame = frame.contentWindow
 
 
   # Create methods on this client from the list of endpoints from the server
   #
   # Returns this
   _createEndpoints: (endpoints) ->
+    @_endpoints = endpoints
+
     for endpoint in endpoints
       @[endpoint] = (args...) ->
         [data, callback] = @_parseArgs(args)

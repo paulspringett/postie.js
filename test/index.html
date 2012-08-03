@@ -8,7 +8,7 @@
 	<script src="/lib/postie.js"></script>
 	<script type="text/javascript">
 	  $(function() {
-	    window.client = new Postie.Client($('iframe')[0]);
+	    window.client = new Postie.Client("http://localhost:8001/frame.html");
 
       client.ready(function() {
         console.log('_endpoints', client._endpoints);
@@ -28,7 +28,6 @@
 	<ul class="messages">
 
 	</ul>
-	<iframe name="foo" src="/frame.html" width="300" height="200" />
 
 </body>
 </html>
