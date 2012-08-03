@@ -78,10 +78,11 @@ class Postie.Client
     @_endpoints = endpoints
 
     for endpoint in endpoints
-      @[endpoint] = (args...) ->
-        [data, callback] = @_parseArgs(args)
-        uuid = @_dispatch(endpoint, data)
-        @_registerCallback(uuid, callback) if callback?
+      do (endpoint) =>
+        @[endpoint] = (args...) ->
+          [data, callback] = @_parseArgs(args)
+          uuid = @_dispatch(endpoint, data)
+          @_registerCallback(uuid, callback) if callback?
 
     @
 

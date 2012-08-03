@@ -11,7 +11,10 @@ class Postie.Event
   success: false
 
   constructor: (event) ->
-    message = JSON.parse(event.data)
+    try
+      message = JSON.parse(event.data)
+    catch err
+      throw new Error "Failed to parse JSON #{event.data}, with error: #{err}"
 
     @uuid = message.uuid
     @method = message.method

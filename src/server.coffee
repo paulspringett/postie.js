@@ -44,8 +44,10 @@ class Postie.Server
     if event.method is 'getEndpoints'
       return @dispatch(event, @endpoints)
 
-    responseData = @receiver[event.method](event.data)
-    @dispatch(event, responseData)
+    sendResponse = (responseData) =>
+      @dispatch(event, responseData)
+
+    @receiver[event.method](event.data, sendResponse)
 
   # Dispatch the encapsulated message to the source
   # using postMessage
