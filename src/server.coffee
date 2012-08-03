@@ -28,7 +28,7 @@ class Postie.Server
   # Returns a Postie.Server
   constructor: (options = {}) ->
     @receiver = options.receiver
-    @_listEndpoints()
+    @_listEndpoints(@receiver)
 
   # Receive a postMessage event
   # Either return the available endpoints or pass
@@ -41,7 +41,7 @@ class Postie.Server
   receive: (rawEvent) =>
     event = new Postie.Event(rawEvent)
 
-    if event.method is '_getEndpoints'
+    if event.method is 'getEndpoints'
       return @dispatch(event, @endpoints)
 
     responseData = @receiver[event.method](event.data)

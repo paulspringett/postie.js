@@ -32,12 +32,13 @@ class Postie.Client
   #
   # Returns nothing
   ready: (callback) ->
-    $(@_frame.document).ready =>
-      uuid = @_dispatch('_getEndpoints', true)
+    setTimeout => # iframe onload
+      uuid = @_dispatch('getEndpoints', true)
 
       @_registerCallback uuid, (methods) =>
         @_createEndpoints(methods)
         callback()
+    , 100
 
   # Add the callback for the given UUID for the callbacks Array
   #
