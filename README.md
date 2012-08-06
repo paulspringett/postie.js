@@ -40,19 +40,22 @@ This should be defined in your background page / iframe
 
 ```javascript
 var myReceiver = {
-  
+
   // First endpoint gets a User by an ID and returns a JSON representation of it.
   // We're doing this with some Backbone here.
-  getUser: function(id) {
+  // id - This is the user id sent from the client
+  // sendResponse - this is a function provided by the server. Call it, passing any
+  // data you want. This is send the response back to the client
+  getUser: function(id, sendResponse) {
     var user = new User(id);
     user.fetch(success: function() {
-      return user.toJSON();
+      sendResponse(user.toJSON());
     });
   },
-  
+
   // Second endpoint simply returns the string of 'foo'.
-  getFoo: function() {
-    return 'foo';
+  getFoo: function(sendResponse) {
+    sendResponse('foo');
   }
 };
 ```
@@ -68,11 +71,11 @@ server.listen()
 
 ##### Step 3) Create the client
 
-This should be defined in your main window. Pass the Window / iframe DOM object where the Server instance is listening.
-Run all your calls to the Server inside the `ready` callback to ensure the Server is ready.
+This should be defined in your main window. Pass the URL of where the Server instance is listening. The Client will
+create an iframe inside the DOM. Run all your calls to the Server inside the `ready` callback to ensure the Server is ready.
 
 ```javascript
-var client = new Postie.Client( $('iframe')[0] );
+var client = new Postie.Client('http://localhost:8081/bookmarklet/background.html');
 client.ready(function() {
   // start calling endpoints here
 });
