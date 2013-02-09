@@ -10,6 +10,7 @@ task 'spec', 'Build the latest changes & run the specs using Mocha', () ->
   build()
   spec()
 
+# Build Coffee files into single JS file
 build = (options = {}) ->
   compileFlag = options.compileFlag or '--compile'
   compileFlag = '--watch' if options.watch
@@ -20,10 +21,12 @@ build = (options = {}) ->
   run "coffee #{compileFlag} --join lib/postie.js src/", ->
     minify()
 
+# Run the specs with Mocha
 spec = (options = {}) ->
   reporter = options.reporter or 'spec'
   run "mocha --colors --reporter #{reporter} --compilers coffee:coffee-script spec/*.coffee"
 
+# Minify the compiled JS
 minify = () ->
   run "uglifyjs --output lib/postie.min.js lib/postie.js", ->
     console.log "Minified lib/postie.js to lib/postie.min.js"

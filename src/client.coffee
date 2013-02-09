@@ -1,3 +1,12 @@
+###
+  Postie.js
+  Copyright 2013 Paul Springett
+
+  Version: 0.1.0
+  Author: Paul Springett
+  URL: http://github.com/paulspringett/postie.js
+###
+
 window.Postie = {}
 
 
