@@ -1,0 +1,31 @@
+{
+  "name": "Postie.js",
+  "description": "Wrapper for the HTML5 postMessage API",
+
+  "version": "0.1.0",
+
+  "author": "Paul Springett <paul@springett.me>",
+  "contributors": [
+    {
+      "name": "Paul Springett",
+      "email": "paul@springett.me"
+    }
+  ],
+
+  "scripts": {
+    "test": "cake spec:ci"
+  },
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/paulspringett/postie.js"
+  },
+
+  "devDependencies": {
+    "coffee-script": "1.4.0",
+    "mocha": "1.8.1",
+    "chai": "1.5.0"
+  },
+
+  "licence": "MIT"
+}
