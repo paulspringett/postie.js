@@ -6,28 +6,34 @@ task 'build', 'Build project from src/*.coffee to lib/*.js', (options = {}) ->
 task 'watch', 'watch for changes and rebuild postie', () ->
   build(watch: true)
 
+task 'spec', 'Build the latest changes & run the specs using Mocha', () ->
+  build()
+  spec()
+
 build = (options = {}) ->
-  output = options.output or 'lib/postie.js'
-  source = options.source or 'src/'
   compileFlag = options.compileFlag or '--compile'
   compileFlag = '--watch' if options.watch
 
-  exec "rm #{output}"
+  exec "rm lib/postie.js"
 
-  console.log "Compiling #{source} into #{output}"
-  exec "coffee #{compileFlag} --join #{output} #{source}", (err, stdout, stderr) ->
-    if err
-      throw err
-      console.log stderr
+  console.log "Compiling src/ into lib/postie.js"
+  run "coffee #{compileFlag} --join lib/postie.js src/", ->
+    minify()
 
-    console.log stdout if stdout
-    # minify()
+spec = (options = {}) ->
+  reporter = options.reporter or 'spec'
+  run "mocha --colors --reporter #{reporter} --compilers coffee:coffee-script spec/*.coffee"
 
 minify = () ->
-  exec "uglifyjs --output lib/postie.min.js lib/postie.js", (err, stdout, stderr) ->
+  run "uglifyjs --output lib/postie.min.js lib/postie.js", ->
+    console.log "Minified lib/postie.js to lib/postie.min.js"
+
+run = (command, success) ->
+  exec "#{command}", (err, stdout, stderr) ->
+    console.log stdout if stdout
+
     if err
       throw err
       console.log stderr
-
-    console.log stdout if stdout
-    console.log "Minified lib/postie.js to lib/postie.min.js"
+    else
+      success?()
