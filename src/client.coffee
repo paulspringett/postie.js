@@ -10,8 +10,7 @@ Released under the MIT license
 http://mit-license.org/
 ###
 
-window.Postie = {}
-
+Postie = {}
 
 # Postie.Client
 # The Client references and connects to the Server in another Frame.
@@ -184,3 +183,6 @@ class Postie.Client
 
     callback.fn(event.data)
     @_callbacks = _.without @_callbacks, callback
+
+root = exports ? this
+root.Postie = Postie
