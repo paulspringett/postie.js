@@ -8,14 +8,14 @@
 	<script src="/lib/postie.js"></script>
 	<script type="text/javascript">
 	  $(function() {
-	    window.client = new Postie.Client("http://localhost:8001/frame.html");
+	    client = new Postie.Client("http://localhost:8001/frame.html");
 
       client.ready(function() {
-        console.log('_endpoints', client._endpoints);
+        console.log('client: _endpoints', client._endpoints);
 
         client.getUser({ id: 1 }, function(response) {
-          console.log('getUser');
-          console.log('response', response);
+          console.log('client: getUser');
+          console.log('client: response', response);
         });
       });
 

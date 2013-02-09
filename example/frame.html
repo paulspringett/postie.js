@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Postie.js test</title>
+
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.3.3/underscore-min.js"></script>
+	<script src="/lib/postie.js"></script>
+	<script type="text/javascript">
+	  $(function() {
+      endpoints = {
+        getUser: function(clientData, sendResponse) {
+          console.log('server: getUser');
+          console.log('server: received', clientData);
+          console.log('server: sendResponse({ type: User, id: 1 })');
+
+          $.ajax({
+            url: 'http://localhost:8001/user.json',
+            data: clientData,
+            success: function(data, status, xhr) {
+              console.log('server: data', data);
+              sendResponse(data);
+            },
+            error: function(xhr, status, err) {
+              console.log('server: error', xhr, status, err);
+            },
+            dataType: 'json',
+            type: 'GET'
+          });
+        }
+      }
+
+	    server = new Postie.Server({receiver: endpoints});
+      server.listen()
+	  });
+	</script>
+</head>
+<body>
+	<h1>Frame window</h1>
+	<ul class="messages">
+
+	</ul>
+</body>
+</html>
