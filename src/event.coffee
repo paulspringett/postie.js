@@ -9,17 +9,22 @@
 # ```
 class Postie.Event
   success: false
+  isValid: false
 
   constructor: (event) ->
     try
       message = JSON.parse(event.data)
+
+      @isValid = true if message.postie
+
+      @uuid = message.uuid
+      @method = message.method
+      @data = message.payload
+
+      # This is the origin of the postMessage
+      # Send responses to @source
+      @source = event.source
+
     catch err
-      throw new Error "Failed to parse JSON #{event.data}, with error: #{err}"
-
-    @uuid = message.uuid
-    @method = message.method
-    @data = message.payload
-
-    # This is the origin of the postMessage
-    # Send responses to @source
-    @source = event.source
+      console.log "Failed to parse JSON #{event.data}, with error: #{err}"
+      @isValid = false

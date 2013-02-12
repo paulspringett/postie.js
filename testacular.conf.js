@@ -3,20 +3,27 @@
 
 
 // base path, that will be used to resolve files and exclude
-basePath = '../../../../..';
+basePath = '';
 
+preprocessors = {
+  '**/*.coffee': 'coffee'
+}
 
 // list of files / patterns to load in the browser
 files = [
   MOCHA,
   MOCHA_ADAPTER,
+  'node_modules/chai/chai.js',
+  'node_modules/sinon/lib/sinon.js',
+  'node_modules/sinon/lib/sinon/spy.js',
+  'lib/postie.js',
   'spec/*.coffee'
 ];
 
 
 // list of files to exclude
 exclude = [
-  
+
 ];
 
 
@@ -54,8 +61,8 @@ autoWatch = true;
 // - Safari (only Mac)
 // - PhantomJS
 // - IE (only Windows)
-browsers = ['Chrome', 'PhantomJS', 'ChromeCanary', 'Firefox', 'Safari'];
-
+// browsers = ['Chrome', 'PhantomJS', 'Firefox', 'Safari'];
+browsers = ['Chrome'];
 
 // If browser does not capture in given timeout [ms], kill it
 captureTimeout = 5000;

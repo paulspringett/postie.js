@@ -40,6 +40,7 @@ class Postie.Server
   # Returns nothing
   receive: (rawEvent) =>
     event = new Postie.Event(rawEvent)
+    return unless event.isValid
 
     if event.method is 'getEndpoints'
       return @dispatch(event, @endpoints)
@@ -68,7 +69,7 @@ class Postie.Server
   #
   # Returns a String
   payload: (uuid, data) ->
-    message = { uuid: uuid, payload: data }
+    message = { postie: true, uuid: uuid, payload: data }
     JSON.stringify(message)
 
   # Bind to the window.message event to listen for incoming postMessage

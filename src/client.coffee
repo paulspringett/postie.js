@@ -143,7 +143,7 @@ class Postie.Client
   #
   # Returns a String
   _payload: (uuid, method, data) ->
-    message = { uuid: uuid, method: method, payload: data }
+    message = { postie: true, uuid: uuid, method: method, payload: data }
     JSON.stringify(message)
 
   # Creates a randon UUID for each message
@@ -176,6 +176,7 @@ class Postie.Client
   # Returns the remaining callbacks
   _receive: (rawEvent) =>
     event = new Postie.Event(rawEvent)
+    return unless event.isValid
 
     callback = _.find @_callbacks, (cb) ->
       cb.uuid is event.uuid
