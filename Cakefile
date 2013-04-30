@@ -22,7 +22,7 @@ watch = () ->
   exec "rm lib/postie.js"
 
   console.log "Watching src/ and compiling into lib/postie.js"
-  run "coffee --watch --join lib/postie.js src/"
+  run "coffee --watch --compile --join lib/postie.js src/"
 
 # Run the specs with Mocha
 spec = (options = {}) ->
