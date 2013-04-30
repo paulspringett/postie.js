@@ -182,7 +182,9 @@ class Postie.Client
     return unless callback?
 
     callback.fn(event.data)
-    @_callbacks = _.without @_callbacks, callback
+
+    @_callbacks = _.filter @_callbacks, (cb) ->
+      cb.uuid != callback.uuid
 
 root = exports ? this
 root.Postie = Postie
