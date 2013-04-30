@@ -4,7 +4,7 @@ task 'build', 'Build project from src/*.coffee to lib/*.js', (options = {}) ->
   build()
 
 task 'watch', 'watch for changes and rebuild postie', () ->
-  build(watch: true)
+  watch()
 
 task 'spec', 'Build the latest changes & run the specs using Mocha', () ->
   build()
@@ -12,14 +12,17 @@ task 'spec', 'Build the latest changes & run the specs using Mocha', () ->
 
 # Build Coffee files into single JS file
 build = (options = {}) ->
-  compileFlag = options.compileFlag or '--compile'
-  compileFlag = '--watch' if options.watch
-
-  exec "rm lib/postie.js"
+  exec "rm lib/postie.js lib/postie.min.js"
 
   console.log "Compiling src/ into lib/postie.js"
-  run "coffee #{compileFlag} --join lib/postie.js src/", ->
+  run "coffee --compile --join lib/postie.js src/", ->
     minify()
+
+watch = () ->
+  exec "rm lib/postie.js"
+
+  console.log "Watching src/ and compiling into lib/postie.js"
+  run "coffee --watch --join lib/postie.js src/"
 
 # Run the specs with Mocha
 spec = (options = {}) ->
