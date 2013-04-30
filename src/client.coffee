@@ -44,7 +44,8 @@ class Postie.Client
   # Returns nothing
   ready: (callback) ->
     @_createFrame @serverUrl, =>
-      uuid = @_dispatch('getEndpoints', true)
+      uuid = @_generateUuid()
+      @_dispatch(uuid, 'getEndpoints', true)
 
       @_registerCallback uuid, (methods) =>
         @_createEndpoints(methods)
@@ -92,9 +93,9 @@ class Postie.Client
       do (endpoint) =>
         @[endpoint] = (args...) ->
           [data, callback] = @_parseArgs(args)
-          uuid = @_dispatch(endpoint, data)
+          uuid = @_generateUuid()
           @_registerCallback(uuid, callback) if callback?
-
+          @_dispatch(uuid, endpoint, data)
     @
 
   # Take an artibuarty number of arguments and determine which is the data and
@@ -126,9 +127,7 @@ class Postie.Client
   # using postMessage
   #
   # Returns a String of the Message's UUID
-  _dispatch: (method, data) ->
-    uuid = @_generateUuid()
-
+  _dispatch: (uuid, method, data) ->
     payload = @_payload(uuid, method, data)
     @_frame.postMessage payload, '*'
     uuid
