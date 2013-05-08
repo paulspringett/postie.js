@@ -77,7 +77,7 @@ class Postie.Client
     frame.setAttribute 'id', 'postie-server-iframe'
     frame.setAttribute 'style', 'display:none;'
 
-    frame.onload = callback
+    frame.addEventListener 'load', callback, false
     document.body.appendChild frame
 
     @_frame = frame.contentWindow
