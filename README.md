@@ -47,13 +47,11 @@ var myReceiver = {
   // sendResponse - this is a function provided by the Postie.js server. Call it, passing any
   // data you want. This is send the response back to the client
   getUser: function(id, sendResponse) {
-
     $.get('/users/' + id + '.json',
       success: function(data, status, xhr) {
         sendResponse(data);
       }
     );
-
   },
 
   // Second endpoint simply returns the string of 'foo'.
