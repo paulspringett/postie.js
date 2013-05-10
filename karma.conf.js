@@ -1,21 +1,18 @@
-// Testacular configuration
-// Generated on Tue Feb 12 2013 13:48:38 GMT+0000 (GMT)
+// Karma configuration
+// Generated on Sun May 05 2013 12:13:39 GMT+0100 (BST)
 
 
 // base path, that will be used to resolve files and exclude
 basePath = '';
 
 preprocessors = {
-  '**/*.coffee': 'coffee'
+  'spec/*.coffee': 'coffee'
 }
 
 // list of files / patterns to load in the browser
 files = [
-  MOCHA,
-  MOCHA_ADAPTER,
-  'node_modules/chai/chai.js',
-  'node_modules/sinon/lib/sinon.js',
-  'node_modules/sinon/lib/sinon/spy.js',
+  JASMINE,
+  JASMINE_ADAPTER,
   'lib/postie.js',
   'spec/*.coffee'
 ];
@@ -33,7 +30,7 @@ reporters = ['progress'];
 
 
 // web server port
-port = 8080;
+port = 9876;
 
 
 // cli runner port
@@ -61,11 +58,11 @@ autoWatch = true;
 // - Safari (only Mac)
 // - PhantomJS
 // - IE (only Windows)
-// browsers = ['Chrome', 'PhantomJS', 'Firefox', 'Safari'];
-browsers = ['Chrome'];
+// browsers = ['Chrome', 'Firefox', 'PhantomJS', 'Safari'];
+browsers = ['PhantomJS'];
 
 // If browser does not capture in given timeout [ms], kill it
-captureTimeout = 5000;
+captureTimeout = 60000;
 
 
 // Continuous Integration mode

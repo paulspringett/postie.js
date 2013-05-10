@@ -23,10 +23,7 @@
 
   "devDependencies": {
     "coffee-script": "1.4.0",
-    "mocha": "1.8.1",
-    "chai": "1.5.0",
-    "sinon": "1.5.2",
-    "testacular": "0.4.0",
+    "karma": "0.8.5",
     "uglify-js": "2.2.4"
   },
 
