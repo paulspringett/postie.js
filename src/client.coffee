@@ -2,7 +2,7 @@
 Postie.js
 Copyright 2013 Paul Springett
 
-Version: 0.1.0
+Version: 0.1.1
 Author: Paul Springett
 URL: http://github.com/paulspringett/postie.js
 
@@ -81,7 +81,6 @@ class Postie.Client
     document.body.appendChild frame
 
     @_frame = frame.contentWindow
-
 
   # Create methods on this client from the list of endpoints from the server
   #
